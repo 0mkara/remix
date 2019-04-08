@@ -2,8 +2,8 @@
 import remixLib from "remix-lib";
 const SourceMappingDecoder = remixLib.SourceMappingDecoder;
 const AstWalker = remixLib.AstWalker;
-import EventManager from "../../lib/events";
-import globalRegistry from "../../global/registry";
+import EventManager from "./lib/events";
+import globalRegistry from "./global/registry";
 
 class ContextualListener {
   _stopHighlighting() {
