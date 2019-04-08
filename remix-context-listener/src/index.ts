@@ -6,7 +6,32 @@ import EventManager from "../../lib/events";
 import globalRegistry from "../../global/registry";
 
 class ContextualListener {
-  constructor(opts, localRegistry) {
+  _stopHighlighting() {
+    throw new Error("Method not implemented.");
+  }
+  _buildIndex(data: any, source: any) {
+    throw new Error("Method not implemented.");
+  }
+  _highlightItems(arg0: any, arg1: any, arg2: any) {
+    throw new Error("Method not implemented.");
+  }
+  _components: {
+    registry?: any;
+  };
+  event: any;
+  editor: any;
+  pluginManager: any;
+  _deps: {
+    compilersArtefacts: any;
+    config: any;
+    offsetToLineColumnConverter: any;
+  };
+  _index: { Declarations: {}; FlatReferences: {} };
+  _activeHighlights: any[];
+  sourceMappingDecoder: any;
+  astWalker: any;
+
+  constructor(opts: Object | any, localRegistry: Object | any) {
     var self = this;
     this.event = new EventManager();
     self._components = {};
