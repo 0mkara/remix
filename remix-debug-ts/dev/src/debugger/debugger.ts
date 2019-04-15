@@ -15,6 +15,7 @@ export default class Debugger {
   debugger: Ethdebugger;
   breakPointManager: any;
   step_manager: any;
+  vmDebuggerLogic: VmDebuggerLogic;
 
   constructor(options) {
     var self = this;
@@ -52,11 +53,11 @@ export default class Debugger {
 
     this.debugger.setBreakpointManage(this.breakPointManager);
 
-    this.debugger.event.register("newTraceLoaded", this, function():void {
+    this.debugger.event.register("newTraceLoaded", this, function(): void {
       self.event.trigger("debuggerStatus", [true]);
     });
 
-    this.debugger.event.register("traceUnloaded", this, function():void {
+    this.debugger.event.register("traceUnloaded", this, function(): void {
       self.event.trigger("debuggerStatus", [false]);
     });
 
@@ -100,105 +101,105 @@ export default class Debugger {
         );
       }
     );
-  };
+  }
 
   updateWeb3(web3: any): void {
     this.debugger.web3 = web3;
-  };
-}
-
-
-
-
-
-debug(blockNumber, txNumber, tx, loadingCb) {
-  const self = this;
-  let web3 = this.debugger.web3;
-
-  if (this.debugger.traceManager.isLoading) {
-    return;
   }
 
-  if (tx) {
-    if (!tx.to) {
-      tx.to = traceHelper.contractCreationToken("0");
+  debug(blockNumber: any, txNumber: any, tx: any, loadingCb: any): any {
+    const self = this;
+    let web3 = this.debugger.web3;
+
+    if (this.debugger.traceManager.isLoading) {
+      return;
     }
-    return self.debugTx(tx, loadingCb);
-  }
 
-  try {
-    if (txNumber.indexOf("0x") !== -1) {
-      return web3.eth.getTransaction(txNumber, function(_error, result) {
+    if (tx) {
+      if (!tx.to) {
+        tx.to = traceHelper.contractCreationToken("0");
+      }
+      return self.debugTx(tx, loadingCb);
+    }
+
+    try {
+      if (txNumber.indexOf("0x") !== -1) {
+        return web3.eth.getTransaction(txNumber, function(
+          _error: Error,
+          result: any
+        ) {
+          let tx = result;
+          self.debugTx(tx, loadingCb);
+        });
+      }
+      web3.eth.getTransactionFromBlock(blockNumber, txNumber, function(
+        _error: Error,
+        result: any
+      ) {
         let tx = result;
         self.debugTx(tx, loadingCb);
       });
+    } catch (e) {
+      console.error(e.message);
     }
-    web3.eth.getTransactionFromBlock(blockNumber, txNumber, function(
-      _error,
-      result
-    ) {
-      let tx = result;
-      self.debugTx(tx, loadingCb);
-    });
-  } catch (e) {
-    console.error(e.message);
   }
-};
 
-debugTx(tx, loadingCb) {
-  const self = this;
-  this.step_manager = new StepManager(
-    this.debugger,
-    this.debugger.traceManager
-  );
+  debugTx(tx: any, loadingCb: any): void {
+    const self = this;
+    this.step_manager = new StepManager(
+      this.debugger,
+      this.debugger.traceManager
+    );
 
-  this.debugger.codeManager.event.register(
-    "changed",
-    this,
-    (code, address, instIndex) => {
-      self.debugger.callTree.sourceLocationTracker.getSourceLocationFromVMTraceIndex(
-        address,
-        this.step_manager.currentStepIndex,
-        this.debugger.solidityProxy.contracts,
-        (error, sourceLocation) => {
-          if (!error) {
-            self.vmDebuggerLogic.event.trigger("sourceLocationChanged", [
-              sourceLocation
-            ]);
+    this.debugger.codeManager.event.register(
+      "changed",
+      this,
+      (code: any, address: any, instIndex: any) => {
+        self.debugger.callTree.sourceLocationTracker.getSourceLocationFromVMTraceIndex(
+          address,
+          this.step_manager.currentStepIndex,
+          this.debugger.solidityProxy.contracts,
+          (error, sourceLocation) => {
+            if (!error) {
+              self.vmDebuggerLogic.event.trigger("sourceLocationChanged", [
+                sourceLocation
+              ]);
+            }
           }
-        }
-      );
-    }
-  );
+        );
+      }
+    );
 
-  this.vmDebuggerLogic = new VmDebuggerLogic(
-    this.debugger,
-    tx,
-    this.step_manager,
-    this.debugger.traceManager,
-    this.debugger.codeManager,
-    this.debugger.solidityProxy,
-    this.debugger.callTree
-  );
-  this.vmDebuggerLogic.start();
+    this.vmDebuggerLogic = new VmDebuggerLogic(
+      this.debugger,
+      tx,
+      this.step_manager,
+      this.debugger.traceManager,
+      this.debugger.codeManager,
+      this.debugger.solidityProxy,
+      this.debugger.callTree
+    );
+    this.vmDebuggerLogic.start();
 
-  this.step_manager.event.register("stepChanged", this, function(stepIndex) {
-    if (!stepIndex) {
-      return self.event.trigger("endDebug");
-    }
+    this.step_manager.event.register("stepChanged", this, function(
+      stepIndex
+    ): any | void {
+      if (!stepIndex) {
+        return self.event.trigger("endDebug");
+      }
 
-    self.debugger.codeManager.resolveStep(stepIndex, tx);
-    self.step_manager.event.trigger("indexChanged", [stepIndex]);
-    self.vmDebuggerLogic.event.trigger("indexChanged", [stepIndex]);
-    self.registerAndHighlightCodeItem(stepIndex);
-  });
+      self.debugger.codeManager.resolveStep(stepIndex, tx);
+      self.step_manager.event.trigger("indexChanged", [stepIndex]);
+      self.vmDebuggerLogic.event.trigger("indexChanged", [stepIndex]);
+      self.registerAndHighlightCodeItem(stepIndex);
+    });
 
-  loadingCb();
-  this.debugger.debug(tx);
-};
+    loadingCb();
+    this.debugger.debug(tx);
+  }
 
-unload() {
-  this.debugger.unLoad();
-  this.event.trigger("debuggerUnloaded");
-};
-
+  unload(): void {
+    this.debugger.unLoad();
+    this.event.trigger("debuggerUnloaded");
+  }
+}
