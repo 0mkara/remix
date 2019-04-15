@@ -4,7 +4,7 @@ import ContextManager from "./contextManager.js";
 import EventManager from "events";
 import { dataType, inputJSONType, compilationType } from "./types.js";
 
-class CmdLine {
+export default class CmdLine {
   events: EventManager;
   lineColumnPos: any;
   rawLocation: any;
@@ -35,7 +35,8 @@ class CmdLine {
     this.loadCompilationResult(data);
   }
 
-  loadCompilationResult(compilationResult: any) {
+  loadCompilationResult(compilationResult: any): void {
+    this.compilation as any;
     this.compilation.lastCompilationResult = compilationResult;
   }
 
@@ -228,5 +229,3 @@ class CmdLine {
     console.dir(this.solidityState);
   }
 }
-
-module.exports = CmdLine;
