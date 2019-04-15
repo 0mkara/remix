@@ -57,50 +57,52 @@ export default class Debugger {
       self.step_manager.jumpTo(step);
     });
   }
+
+  registerAndHighlightCodeItem(index) {
+    const self = this;
+    // register selected code item, highlight the corresponding source location
+    if (!self.compiler.lastCompilationResult) return;
+    self.debugger.traceManager.getCurrentCalledAddressAt(
+      index,
+      (error, address) => {
+        if (error) return console.log(error);
+        self.debugger.callTree.sourceLocationTracker.getSourceLocationFromVMTraceIndex(
+          address,
+          index,
+          self.compiler.lastCompilationResult.data.contracts,
+          function(error, rawLocation) {
+            if (
+              !error &&
+              self.compiler.lastCompilationResult &&
+              self.compiler.lastCompilationResult.data
+            ) {
+              var lineColumnPos = self.offsetToLineColumnConverter.offsetToLineColumn(
+                rawLocation,
+                rawLocation.file,
+                self.compiler.lastCompilationResult.source.sources,
+                self.compiler.lastCompilationResult.data.sources
+              );
+              self.event.trigger("newSourceLocation", [
+                lineColumnPos,
+                rawLocation
+              ]);
+            } else {
+              self.event.trigger("newSourceLocation", [null]);
+            }
+          }
+        );
+      }
+    );
+  };
 }
 
-Debugger.prototype.registerAndHighlightCodeItem = function(index) {
-  const self = this;
-  // register selected code item, highlight the corresponding source location
-  if (!self.compiler.lastCompilationResult) return;
-  self.debugger.traceManager.getCurrentCalledAddressAt(
-    index,
-    (error, address) => {
-      if (error) return console.log(error);
-      self.debugger.callTree.sourceLocationTracker.getSourceLocationFromVMTraceIndex(
-        address,
-        index,
-        self.compiler.lastCompilationResult.data.contracts,
-        function(error, rawLocation) {
-          if (
-            !error &&
-            self.compiler.lastCompilationResult &&
-            self.compiler.lastCompilationResult.data
-          ) {
-            var lineColumnPos = self.offsetToLineColumnConverter.offsetToLineColumn(
-              rawLocation,
-              rawLocation.file,
-              self.compiler.lastCompilationResult.source.sources,
-              self.compiler.lastCompilationResult.data.sources
-            );
-            self.event.trigger("newSourceLocation", [
-              lineColumnPos,
-              rawLocation
-            ]);
-          } else {
-            self.event.trigger("newSourceLocation", [null]);
-          }
-        }
-      );
-    }
-  );
-};
 
-Debugger.prototype.updateWeb3 = function(web3) {
+
+updateWeb3(web3) {
   this.debugger.web3 = web3;
 };
 
-Debugger.prototype.debug = function(blockNumber, txNumber, tx, loadingCb) {
+debug(blockNumber, txNumber, tx, loadingCb) {
   const self = this;
   let web3 = this.debugger.web3;
 
@@ -134,7 +136,7 @@ Debugger.prototype.debug = function(blockNumber, txNumber, tx, loadingCb) {
   }
 };
 
-Debugger.prototype.debugTx = function(tx, loadingCb) {
+debugTx(tx, loadingCb) {
   const self = this;
   this.step_manager = new StepManager(
     this.debugger,
@@ -186,9 +188,8 @@ Debugger.prototype.debugTx = function(tx, loadingCb) {
   this.debugger.debug(tx);
 };
 
-Debugger.prototype.unload = function() {
+unload() {
   this.debugger.unLoad();
   this.event.trigger("debuggerUnloaded");
 };
 
-module.exports = Debugger;
