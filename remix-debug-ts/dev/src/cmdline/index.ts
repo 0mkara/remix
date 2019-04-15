@@ -9,7 +9,7 @@ export default class CmdLine {
   lineColumnPos: any;
   rawLocation: any;
   web3: any;
-  compilation: {};
+  compilation: any;
   contextManager: any;
   debugger: any;
   filename: any;
@@ -36,11 +36,10 @@ export default class CmdLine {
   }
 
   loadCompilationResult(compilationResult: any): void {
-    this.compilation as any;
     this.compilation.lastCompilationResult = compilationResult;
   }
 
-  initDebugger(cb) {
+  initDebugger(cb: Function): void {
     const self = this;
     this.contextManager = new ContextManager();
 
@@ -49,9 +48,12 @@ export default class CmdLine {
       compiler: this.compilation
     });
 
-    this.contextManager.event.register("providerChanged", () => {
-      self.debugger.updateWeb3(self.contextManager.getWeb3());
-    });
+    this.contextManager.event.register(
+      "providerChanged",
+      (): void => {
+        self.debugger.updateWeb3(self.contextManager.getWeb3());
+      }
+    );
 
     this.contextManager.initProviders();
 
@@ -59,7 +61,7 @@ export default class CmdLine {
     this.contextManager.switchProvider("debugger_web3", cb);
   }
 
-  getSource() {
+  getSource(): Array<any> {
     const self = this;
 
     let lineColumnPos = this.lineColumnPos;
@@ -95,7 +97,7 @@ export default class CmdLine {
     return source;
   }
 
-  getCurrentLine() {
+  getCurrentLine(): Array<any> | string {
     let lineColumnPos = this.lineColumnPos;
     if (!lineColumnPos) return "";
     let currentLineNumber = lineColumnPos.start.line;
@@ -105,7 +107,7 @@ export default class CmdLine {
     return content[currentLineNumber];
   }
 
-  startDebug(txNumber, filename, cb) {
+  startDebug(txNumber: any, filename: any, cb: Function): void {
     const self = this;
     this.filename = filename;
     this.txHash = txNumber;
@@ -138,93 +140,93 @@ export default class CmdLine {
     });
   }
 
-  getVars() {
+  getVars(): object {
     return {
       locals: this.solidityLocals,
       contract: this.solidityState
     };
   }
 
-  triggerSourceUpdate() {
+  triggerSourceUpdate(): void {
     this.events.emit("source", [this.lineColumnPos, this.rawLocation]);
   }
 
-  stepJumpNextBreakpoint() {
+  stepJumpNextBreakpoint(): void {
     this.debugger.step_manager.jumpNextBreakpoint();
   }
 
-  stepJumpPreviousBreakpoint() {
+  stepJumpPreviousBreakpoint(): void {
     this.debugger.step_manager.jumpPreviousBreakpoint();
   }
 
-  stepOverForward(solidityMode) {
+  stepOverForward(solidityMode: any): void {
     this.debugger.step_manager.stepOverForward(solidityMode);
   }
 
-  stepOverBack(solidityMode) {
+  stepOverBack(solidityMode: any): void {
     this.debugger.step_manager.stepOverBack(solidityMode);
   }
 
-  stepIntoForward(solidityMode) {
+  stepIntoForward(solidityMode: any): void {
     this.debugger.step_manager.stepIntoForward(solidityMode);
   }
 
-  stepIntoBack(solidityMode) {
+  stepIntoBack(solidityMode: any): void {
     this.debugger.step_manager.stepIntoBack(solidityMode);
   }
 
-  jumpTo(step) {
+  jumpTo(step: any): void {
     this.debugger.step_manager.jumpTo(step);
   }
 
-  getTraceLength() {
+  getTraceLength(): any {
     if (!this.debugger.step_manager) return 0;
     return this.debugger.step_manager.traceLength;
   }
 
-  getCodeFirstStep() {
+  getCodeFirstStep(): any {
     if (!this.debugger.step_manager) return 0;
     return this.debugger.step_manager.calculateFirstStep();
   }
 
-  getCodeTraceLength() {
+  getCodeTraceLength(): any {
     if (!this.debugger.step_manager) return 0;
     return this.debugger.step_manager.calculateCodeLength();
   }
 
-  nextStep() {
+  nextStep(): any {
     if (!this.debugger.step_manager) return 0;
     return this.debugger.step_manager.nextStep();
   }
 
-  previousStep() {
+  previousStep(): any {
     if (!this.debugger.step_manager) return 0;
     return this.debugger.step_manager.previousStep();
   }
 
-  currentStep() {
+  currentStep(): any {
     if (!this.debugger.step_manager) return 0;
     return this.debugger.step_manager.currentStepIndex;
   }
 
-  canGoNext() {
+  canGoNext(): any {
     return this.currentStep() < this.getCodeTraceLength();
   }
 
-  canGoPrevious() {
+  canGoPrevious(): any {
     return this.currentStep() > this.getCodeFirstStep();
   }
 
-  unload() {
+  unload(): any {
     return this.debugger.unload();
   }
 
-  displayLocals() {
+  displayLocals(): void {
     console.dir("= displayLocals");
     console.dir(this.solidityLocals);
   }
 
-  displayGlobals() {
+  displayGlobals(): void {
     console.dir("= displayGlobals");
     console.dir(this.solidityState);
   }
