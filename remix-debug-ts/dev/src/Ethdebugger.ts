@@ -39,9 +39,6 @@ export default class Ethdebugger {
   storageResolver: any;
   callTree: any;
   breakpointManager: any;
-  extractStateAt: (step: any, callback: any) => void;
-  decodeStateAt: (step: any, stateVars: any, callback: any) => void;
-  storageViewAt: (step: any, address: any) => any;
   updateWeb3: (web3: any) => void;
   debug: (tx: any) => void;
   txBrowser: any;
@@ -155,9 +152,9 @@ export default class Ethdebugger {
   }
 
   decodeStateAt(step: any, stateVars: any, callback: Function) {
-    this.traceManager.getCurrentCalledAddressAt(step, (error, address) => {
+    this.traceManager.getCurrentCalledAddressAt(step, (error: Error, address: any) => {
       if (error) return callback(error)
-      var storageViewer = new StorageViewer({
+      let storageViewer = new StorageViewer({
         stepIndex: step,
         tx: this.tx,
         address: address
@@ -172,6 +169,14 @@ export default class Ethdebugger {
     })
   }
 
+  storageViewAt(step: any, address: any): StorageViewer {
+    return new StorageViewer({
+      stepIndex: step,
+      tx: this.tx,
+      address: address
+    }, this.storageResolver, this.traceManager)
+  }
+
 }
 
 
@@ -181,13 +186,7 @@ export default class Ethdebugger {
 
 
 
-storageViewAt = function (step, address) {
-  return new StorageViewer({
-    stepIndex: step,
-    tx: this.tx,
-    address: address
-  }, this.storageResolver, this.traceManager)
-}
+
 
 updateWeb3 = function (web3) {
   this.web3 = web3
