@@ -9,6 +9,13 @@ import StepManager from "./stepManager";
 import VmDebuggerLogic from "./VmDebugger";
 
 export default class Debugger {
+  event: any;
+  offsetToLineColumnConverter: any;
+  compiler: any;
+  debugger: Ethdebugger;
+  breakPointManager: any;
+  step_manager: any;
+
   constructor(options) {
     var self = this;
     this.event = new EventManager();
@@ -19,7 +26,7 @@ export default class Debugger {
 
     this.debugger = new Ethdebugger({
       web3: options.web3,
-      compilationResult: () => {
+      compilationResult: (): null => {
         var compilationResult = this.compiler.lastCompilationResult;
         if (compilationResult) {
           return compilationResult.data;
@@ -43,34 +50,34 @@ export default class Debugger {
       }
     );
 
-    this.debugger.setBreakpointManager(this.breakPointManager);
+    this.debugger.setBreakpointManage(this.breakPointManager);
 
-    this.debugger.event.register("newTraceLoaded", this, function() {
+    this.debugger.event.register("newTraceLoaded", this, function():void {
       self.event.trigger("debuggerStatus", [true]);
     });
 
-    this.debugger.event.register("traceUnloaded", this, function() {
+    this.debugger.event.register("traceUnloaded", this, function():void {
       self.event.trigger("debuggerStatus", [false]);
     });
 
-    this.event.register("breakpointStep", function(step) {
+    this.event.register("breakpointStep", function(step): void {
       self.step_manager.jumpTo(step);
     });
   }
 
-  registerAndHighlightCodeItem(index) {
+  registerAndHighlightCodeItem(index: any): void {
     const self = this;
     // register selected code item, highlight the corresponding source location
     if (!self.compiler.lastCompilationResult) return;
     self.debugger.traceManager.getCurrentCalledAddressAt(
       index,
-      (error, address) => {
+      (error: Error, address: any) => {
         if (error) return console.log(error);
         self.debugger.callTree.sourceLocationTracker.getSourceLocationFromVMTraceIndex(
           address,
           index,
           self.compiler.lastCompilationResult.data.contracts,
-          function(error, rawLocation) {
+          function(error: Error, rawLocation: any) {
             if (
               !error &&
               self.compiler.lastCompilationResult &&
@@ -94,13 +101,15 @@ export default class Debugger {
       }
     );
   };
+
+  updateWeb3(web3: any): void {
+    this.debugger.web3 = web3;
+  };
 }
 
 
 
-updateWeb3(web3) {
-  this.debugger.web3 = web3;
-};
+
 
 debug(blockNumber, txNumber, tx, loadingCb) {
   const self = this;
