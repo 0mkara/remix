@@ -39,8 +39,6 @@ export default class Ethdebugger {
   storageResolver: any;
   callTree: any;
   breakpointManager: any;
-  updateWeb3: (web3: any) => void;
-  debug: (tx: any) => void;
   txBrowser: any;
   unLoad: () => void;
   statusMessage: any;
@@ -73,11 +71,11 @@ export default class Ethdebugger {
     this.callTree = new InternalCallTree(this.event, this.traceManager, this.solidityProxy, this.codeManager, { includeLocalVariables: true })
   }
 
-  resolveStep(index: any) {
+  resolveStep(index: any): void {
     this.codeManager.resolveStep(index, this.tx)
   }
 
-  setCompilationResult(compilationResult: any) {
+  setCompilationResult(compilationResult: any): void {
     if (compilationResult && compilationResult.sources && compilationResult.contracts) {
       this.solidityProxy.reset(compilationResult)
     } else {
@@ -151,7 +149,7 @@ export default class Ethdebugger {
     })
   }
 
-  decodeStateAt(step: any, stateVars: any, callback: Function) {
+  decodeStateAt(step: any, stateVars: any, callback: Function): any {
     this.traceManager.getCurrentCalledAddressAt(step, (error: Error, address: any) => {
       if (error) return callback(error)
       let storageViewer = new StorageViewer({
@@ -177,30 +175,34 @@ export default class Ethdebugger {
     }, this.storageResolver, this.traceManager)
   }
 
-}
+  
+  updateWeb3(web3: any): void {
+    this.web3 = web3
+    this.setManagers()
+  }
 
 
-
-
-
-
-
-
-
-
-updateWeb3 = function (web3) {
-  this.web3 = web3
-  this.setManagers()
-}
-
-debug = function (tx) {
-  this.setCompilationResult(this.opts.compilationResult())
-  if (tx instanceof Object) {
-    this.txBrowser.load(tx.hash)
-  } else if (tx instanceof String) {
-    this.txBrowser.load(tx)
+  debug(tx: any): void {
+    this.setCompilationResult(this.opts.compilationResult())
+    if (tx instanceof Object) {
+      this.txBrowser.load(tx.hash)
+    } else if (tx instanceof String) {
+      this.txBrowser.load(tx)
+    }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 unLoad = function () {
   this.traceManager.init()
