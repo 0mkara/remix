@@ -40,7 +40,6 @@ export default class Ethdebugger {
   callTree: any;
   breakpointManager: any;
   txBrowser: any;
-  unLoad: () => void;
   statusMessage: any;
 
   constructor(opts: any){
@@ -190,6 +189,14 @@ export default class Ethdebugger {
       this.txBrowser.load(tx)
     }
   }
+
+
+  unLoad(): void {
+    this.traceManager.init()
+    this.codeManager.clear()
+    this.event.trigger('traceUnloaded')
+  }
+
 }
 
 
@@ -203,12 +210,6 @@ export default class Ethdebugger {
 
 
 
-
-unLoad = function () {
-  this.traceManager.init()
-  this.codeManager.clear()
-  this.event.trigger('traceUnloaded')
-}
 
 debug = function (tx) {
   if (this.traceManager.isLoading) {
