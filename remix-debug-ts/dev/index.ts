@@ -9,7 +9,7 @@ import StorageResolver from './src/storage/storageResolver'
 import SolidityDecoder from './src/solidity-decoder'
 
 import remixLib from 'remix-lib'
-import BreakpointManager from remixLib.code.BreakpointManager
+const BreakpointManager = remixLib.code.BreakpointManager;
 
 /*
   Use of breakPointManager :
