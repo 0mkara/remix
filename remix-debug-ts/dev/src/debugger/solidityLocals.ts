@@ -1,12 +1,18 @@
-var remixLib = require('remix-lib')
-var EventManager = remixLib.EventManager
+import remixLib from 'remix-lib';
+const EventManager = remixLib.EventManager
 
-var localDecoder = require('../solidity-decoder/localDecoder')
-var StorageViewer = require('../storage/storageViewer')
+import localDecoder from '../solidity-decoder/localDecoder';
+import StorageViewer from '../storage/storageViewer';
 
-class DebuggerSolidityLocals {
+export default class DebuggerSolidityLocals {
+  event: any;
+  stepManager: any;
+  internalTreeCall: any;
+  storageResolver: any;
+  traceManager: any;
+  tx: any;
 
-  constructor (tx, _stepManager, _traceManager, _internalTreeCall) {
+  constructor(tx, _stepManager, _traceManager, _internalTreeCall) {
     this.event = new EventManager()
     this.stepManager = _stepManager
     this.internalTreeCall = _internalTreeCall
@@ -15,9 +21,9 @@ class DebuggerSolidityLocals {
     this.tx = tx
   }
 
-  init (sourceLocation) {
+  init(sourceLocation: any): any {
     const self = this
-    var decodeTimeout = null
+    let decodeTimeout = null
     if (!this.storageResolver) {
       return self.event.trigger('solidityLocalsMessage', ['storage not ready'])
     }
@@ -30,7 +36,7 @@ class DebuggerSolidityLocals {
     }, 500)
   }
 
-  decode (sourceLocation) {
+  decode(sourceLocation: any): void {
     const self = this
     self.event.trigger('solidityLocalsMessage', [''])
     self.traceManager.waterfall([
@@ -38,14 +44,14 @@ class DebuggerSolidityLocals {
       self.traceManager.getMemoryAt,
       self.traceManager.getCurrentCalledAddressAt],
       self.stepManager.currentStepIndex,
-      (error, result) => {
+      (error: Error, result: any): Error => {
         if (error) {
           return error
         }
-        var stack = result[0].value
-        var memory = result[1].value
+        let stack = result[0].value
+        let memory = result[1].value
         try {
-          var storageViewer = new StorageViewer({ stepIndex: self.stepManager.currentStepIndex, tx: self.tx, address: result[2].value }, self.storageResolver, self.traceManager)
+          let storageViewer = new StorageViewer({ stepIndex: self.stepManager.currentStepIndex, tx: self.tx, address: result[2].value }, self.storageResolver, self.traceManager)
           localDecoder.solidityLocals(self.stepManager.currentStepIndex, self.internalTreeCall, stack, memory, storageViewer, sourceLocation).then((locals) => {
             if (!locals.error) {
               self.event.trigger('solidityLocals', [locals])
@@ -62,4 +68,3 @@ class DebuggerSolidityLocals {
 
 }
 
-module.exports = DebuggerSolidityLocals
