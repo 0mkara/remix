@@ -1,6 +1,6 @@
-var remixLib = require('remix-lib')
-var EventManager = remixLib.EventManager
-var util = remixLib.util
+const remixLib = require('remix-lib')
+const EventManager = remixLib.EventManager
+const util = remixLib.util
 
 export default class DebuggerStepManager {
   event: any;
@@ -12,7 +12,7 @@ export default class DebuggerStepManager {
   revertionPoint: any;
   currentCall: any;
 
-  constructor (_debugger, traceManager) {
+  constructor(_debugger, traceManager) {
     this.event = new EventManager()
     this.debugger = _debugger
     this.traceManager = traceManager
@@ -24,7 +24,7 @@ export default class DebuggerStepManager {
     this.listenToEvents()
   }
 
-  listenToEvents (): void {
+  listenToEvents(): void {
     const self = this
 
     this.debugger.event.register('newTraceLoaded', this, function (): any {
@@ -62,8 +62,8 @@ export default class DebuggerStepManager {
           self.revertionPoint = self.currentCall.return
           return self.event.trigger('revertWarning', [revertedReason])
         }
-        for (var k = callsPath.length - 2; k >= 0; k--) {
-          var parent = callsPath[k]
+        for (let k = callsPath.length - 2; k >= 0; k--) {
+          let parent = callsPath[k]
           if (!parent.reverted) continue
           self.revertionPoint = parent.return
           self.event.trigger('revertWarning', ['parenthasthrown'])
@@ -73,7 +73,7 @@ export default class DebuggerStepManager {
     })
   }
 
-  triggerStepChanged (step: number): void {
+  triggerStepChanged(step: number): void {
     const self = this
     this.traceManager.getLength(function (error, length) {
       let stepState = 'valid'
@@ -92,9 +92,9 @@ export default class DebuggerStepManager {
     })
   }
 
-  stepIntoBack (solidityMode: any): null {
+  stepIntoBack(solidityMode: any): null {
     if (!this.traceManager.isLoaded()) return
-    var step = this.currentStepIndex - 1
+    let step = this.currentStepIndex - 1
     this.currentStepIndex = step
     if (solidityMode) {
       step = this.resolveToReducedTrace(step, -1)
@@ -105,9 +105,9 @@ export default class DebuggerStepManager {
     this.event.trigger('stepChanged', [step])
   }
 
-  stepIntoForward (solidityMode: any): null {
+  stepIntoForward(solidityMode: any): null {
     if (!this.traceManager.isLoaded()) return
-    var step = this.currentStepIndex + 1
+    let step = this.currentStepIndex + 1
     this.currentStepIndex = step
     if (solidityMode) {
       step = this.resolveToReducedTrace(step, 1)
@@ -118,9 +118,9 @@ export default class DebuggerStepManager {
     this.event.trigger('stepChanged', [step])
   }
 
-  stepOverBack (solidityMode: any): void {
+  stepOverBack(solidityMode: any): void {
     if (!this.traceManager.isLoaded()) return
-    var step = this.traceManager.findStepOverBack(this.currentStepIndex)
+    let step = this.traceManager.findStepOverBack(this.currentStepIndex)
     if (solidityMode) {
       step = this.resolveToReducedTrace(step, -1)
     }
@@ -128,7 +128,7 @@ export default class DebuggerStepManager {
     this.event.trigger('stepChanged', [step])
   }
 
-  stepOverForward (solidityMode) {
+  stepOverForward(solidityMode: any): void {
     if (!this.traceManager.isLoaded()) return
     var step = this.traceManager.findStepOverForward(this.currentStepIndex)
     if (solidityMode) {
@@ -138,7 +138,7 @@ export default class DebuggerStepManager {
     this.event.trigger('stepChanged', [step])
   }
 
-  jumpOut (solidityMode) {
+  jumpOut(solidityMode: any): void {
     if (!this.traceManager.isLoaded()) return
     var step = this.traceManager.findStepOut(this.currentStepIndex)
     if (solidityMode) {
@@ -148,30 +148,30 @@ export default class DebuggerStepManager {
     this.event.trigger('stepChanged', [step])
   }
 
-  jumpTo (step) {
+  jumpTo(step: number): void {
     if (!this.traceManager.inRange(step)) return
     this.currentStepIndex = step
     this.event.trigger('stepChanged', [step])
   }
 
-  jumpToException () {
+  jumpToException(): void {
     this.jumpTo(this.revertionPoint)
   }
 
-  jumpNextBreakpoint () {
+  jumpNextBreakpoint(): void {
     this.debugger.breakpointManager.jumpNextBreakpoint(this.currentStepIndex, true)
   }
 
-  jumpPreviousBreakpoint () {
+  jumpPreviousBreakpoint(): void {
     this.debugger.breakpointManager.jumpPreviousBreakpoint(this.currentStepIndex, true)
   }
 
-  calculateFirstStep () {
+  calculateFirstStep(): any {
     let step = this.resolveToReducedTrace(0, 1)
     return this.resolveToReducedTrace(step, 1)
   }
 
-  calculateCodeStepList () {
+  calculateCodeStepList(): Array<number> {
     let step = 0
     let steps = []
     while (step < this.traceLength) {
@@ -184,22 +184,22 @@ export default class DebuggerStepManager {
     return steps
   }
 
-  calculateCodeLength () {
+  calculateCodeLength(): any {
     this.calculateCodeStepList().reverse()
     return this.calculateCodeStepList().reverse()[1] || this.traceLength
   }
 
-  nextStep () {
+  nextStep(): any {
     return this.resolveToReducedTrace(this.currentStepIndex, 1)
   }
 
-  previousStep () {
+  previousStep(): any {
     return this.resolveToReducedTrace(this.currentStepIndex, -1)
   }
 
-  resolveToReducedTrace (value, incr) {
+  resolveToReducedTrace(value: number, incr: number): any {
     if (this.debugger.callTree.reducedTrace.length) {
-      var nextSource = util.findClosestIndex(value, this.debugger.callTree.reducedTrace)
+      const nextSource = util.findClosestIndex(value, this.debugger.callTree.reducedTrace)
       nextSource = nextSource + incr
       if (nextSource <= 0) {
         nextSource = 0
