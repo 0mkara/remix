@@ -13,7 +13,7 @@ export default class DebuggerSolidityState {
   stateVariablesByAddresses: {};
   tx: any;
 
-  constructor (tx, _stepManager, _traceManager, _codeManager, _solidityProxy) {
+  constructor(tx, _stepManager, _traceManager, _codeManager, _solidityProxy) {
     this.event = new EventManager()
     this.storageResolver = null
     this.stepManager = _stepManager
@@ -24,7 +24,7 @@ export default class DebuggerSolidityState {
     this.tx = tx
   }
 
-  init (index: number): any | null {
+  init(index: number): any | null {
     var self = this
     var decodeTimeout = null
     if (index < 0) {
@@ -54,11 +54,11 @@ export default class DebuggerSolidityState {
     }, 500)
   }
 
-  reset (): void {
+  reset(): void {
     this.stateVariablesByAddresses = {}
   }
 
-  decode (index: number): any {
+  decode(index: number): any {
     const self = this
     self.traceManager.getCurrentCalledAddressAt(self.stepManager.currentStepIndex, function (error, address) {
       if (error) {
@@ -77,7 +77,7 @@ export default class DebuggerSolidityState {
     })
   }
 
-  extractStateVariables (stateVars: any, address: any):void {
+  extractStateVariables(stateVars: any, address: any): void {
     const self = this
     var storageViewer = new StorageViewer({ stepIndex: self.stepManager.currentStepIndex, tx: self.tx, address: address }, self.storageResolver, self.traceManager)
     stateDecoder.decodeState(stateVars, storageViewer).then((result: any): any => {
