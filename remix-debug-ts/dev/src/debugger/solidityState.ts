@@ -1,9 +1,17 @@
-var remixLib = require('remix-lib')
-var EventManager = remixLib.EventManager
-var stateDecoder = require('../solidity-decoder/stateDecoder')
-var StorageViewer = require('../storage/storageViewer')
+import remixLib from 'remix-lib';
+const EventManager = remixLib.EventManager
+import stateDecoder from '../solidity-decoder/stateDecoder';
+import StorageViewer from '../storage/storageViewer';
 
-class DebuggerSolidityState {
+export default class DebuggerSolidityState {
+  event: any;
+  storageResolver: any;
+  stepManager: any;
+  traceManager: any;
+  codeManager: any;
+  solidityProxy: any;
+  stateVariablesByAddresses: {};
+  tx: any;
 
   constructor (tx, _stepManager, _traceManager, _codeManager, _solidityProxy) {
     this.event = new EventManager()
@@ -83,4 +91,3 @@ class DebuggerSolidityState {
 
 }
 
-module.exports = DebuggerSolidityState
