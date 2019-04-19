@@ -1,4 +1,4 @@
-const remixLib = require('remix-lib')
+import remixLib from 'remix-lib';
 const EventManager = remixLib.EventManager
 const util = remixLib.util
 
@@ -199,7 +199,7 @@ export default class DebuggerStepManager {
 
   resolveToReducedTrace(value: number, incr: number): any {
     if (this.debugger.callTree.reducedTrace.length) {
-      const nextSource = util.findClosestIndex(value, this.debugger.callTree.reducedTrace)
+      let nextSource = util.findClosestIndex(value, this.debugger.callTree.reducedTrace)
       nextSource = nextSource + incr
       if (nextSource <= 0) {
         nextSource = 0
