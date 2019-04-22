@@ -1,13 +1,13 @@
 'use strict'
-var DynamicBytes = require('./DynamicByteArray')
+import DynamicBytes from './DynamicByteArray'
 
-class StringType extends DynamicBytes {
+export default class StringType extends DynamicBytes {
   constructor (location) {
     super(location)
     this.typeName = 'string'
   }
 
-  async decodeFromStorage (location, storageResolver) {
+  async decodeFromStorage (location: any, storageResolver: any): Promise<any> {
     var decoded = '0x'
     try {
       decoded = await super.decodeFromStorage(location, storageResolver)
@@ -18,7 +18,7 @@ class StringType extends DynamicBytes {
     return format(decoded)
   }
 
-  async decodeFromStack (stackDepth, stack, memory) {
+  async decodeFromStack (stackDepth: any, stack: any, memory: any): any {
     try {
       return await super.decodeFromStack(stackDepth, stack, memory)
     } catch (e) {
@@ -52,5 +52,3 @@ function format (decoded) {
   }
   return ret
 }
-
-module.exports = StringType
