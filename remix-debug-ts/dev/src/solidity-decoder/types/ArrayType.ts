@@ -1,7 +1,7 @@
 "use strict";
 import util from "./util";
 import remixLib from "remix-lib";
-let sha3256 = remixLib.util.sha3_256;
+const sha3256 = remixLib.util.sha3_256;
 import { BN } from "ethereumjs-util";
 import RefType from "./RefType";
 
@@ -9,6 +9,7 @@ export default class ArrayType extends RefType {
   underlyingType: any;
   arraySize: any;
   typeName: any;
+  storageBytes: any;
   constructor(underlyingType, arraySize, location) {
     let storageSlots = null;
     if (arraySize === "dynamic") {
@@ -98,9 +99,6 @@ export default class ArrayType extends RefType {
       length: "0x" + size.toString(16),
       type: this.typeName
     };
-  }
-  storageBytes(location: any, storageResolver: any, storageBytes: any): any {
-    throw new Error("Method not implemented.");
   }
 
   decodeFromMemoryInternal(offset: any, memory: any): any {

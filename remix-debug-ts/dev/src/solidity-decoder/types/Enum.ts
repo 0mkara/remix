@@ -1,7 +1,8 @@
 'use strict'
-var ValueType = require('./ValueType')
+import ValueType from './ValueType'
 
-class Enum extends ValueType {
+export default class Enum extends ValueType {
+  enumDef: any;
   constructor (enumDef) {
     var storageBytes = 0
     var length = enumDef.children.length
@@ -13,7 +14,7 @@ class Enum extends ValueType {
     this.enumDef = enumDef
   }
 
-  decodeValue (value) {
+  decodeValue (value: any): any {
     if (!value) {
       return this.enumDef.children[0].attributes.name
     } else {
@@ -27,4 +28,3 @@ class Enum extends ValueType {
   }
 }
 
-module.exports = Enum

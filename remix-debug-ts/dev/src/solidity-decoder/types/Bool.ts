@@ -1,13 +1,14 @@
 'use strict'
-var ValueType = require('./ValueType')
-var util = require('./util')
+import ValueType from './ValueType'
+import util from './util'
 
-class Bool extends ValueType {
+export default class Bool extends ValueType {
+  storageBytes: any;
   constructor () {
     super(1, 1, 'bool')
   }
 
-  decodeValue (value) {
+  decodeValue (value: any): any {
     if (!value) {
       return false
     } else {
@@ -17,4 +18,3 @@ class Bool extends ValueType {
   }
 }
 
-module.exports = Bool
