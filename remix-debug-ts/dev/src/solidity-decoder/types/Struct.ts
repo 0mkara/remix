@@ -1,14 +1,15 @@
 'use strict'
-var util = require('./util')
-var RefType = require('./RefType')
+import util from './util';
+import RefType from './RefType';
 
-class Struct extends RefType {
+export default class Struct extends RefType {
+  members: any;
   constructor (memberDetails, location, fullType) {
     super(memberDetails.storageSlots, 32, 'struct ' + fullType, location)
     this.members = memberDetails.members
   }
 
-  async decodeFromStorage (location, storageResolver) {
+  async decodeFromStorage (location: any, storageResolver: any): Promise<object> {
     var ret = {}
     for (var k in this.members) {
       var item = this.members[k]
@@ -29,7 +30,7 @@ class Struct extends RefType {
     }
   }
 
-  decodeFromMemoryInternal (offset, memory) {
+  decodeFromMemoryInternal (offset: any, memory: any): object {
     var ret = {}
     this.members.map((item, i) => {
       var contentOffset = offset
@@ -44,4 +45,3 @@ class Struct extends RefType {
   }
 }
 
-module.exports = Struct
