@@ -61,19 +61,19 @@ function extractStateDefinitions(
   if (!contracts) {
     contracts = extractContractDefinitions(sourcesList);
   }
-  var node = contracts.contractsByName[contractName];
+  const node = contracts.contractsByName[contractName];
   if (node) {
-    var stateItems = [];
-    var stateVar = [];
-    var baseContracts = getLinearizedBaseContracts(
+    const stateItems = [];
+    const stateVar = [];
+    let baseContracts = getLinearizedBaseContracts(
       node.id,
       contracts.contractsById
     );
     baseContracts.reverse();
-    for (var k in baseContracts) {
-      var ctr = baseContracts[k];
-      for (var i in ctr.children) {
-        var item = ctr.children[i];
+    for (let k in baseContracts) {
+      let ctr = baseContracts[k];
+      for (let i in ctr.children) {
+        let item = ctr.children[i];
         stateItems.push(item);
         if (item.name === "VariableDeclaration") {
           stateVar.push(item);
@@ -102,12 +102,12 @@ function extractStatesDefinitions(
   if (!contracts) {
     contracts = extractContractDefinitions(sourcesList);
   }
-  var ret = {};
-  for (var contract in contracts.contractsById) {
-    var name = contracts.contractsById[contract].attributes.name;
-    var source = contracts.sourcesByContract[contract];
-    var fullName = source + ":" + name;
-    var state = extractStateDefinitions(fullName, sourcesList, contracts);
+  let ret = {};
+  for (let contract in contracts.contractsById) {
+    let name = contracts.contractsById[contract].attributes.name;
+    let source = contracts.sourcesByContract[contract];
+    let fullName = source + ":" + name;
+    let state = extractStateDefinitions(fullName, sourcesList, contracts);
     ret[fullName] = state;
     ret[name] = state; // solc < 0.4.9
   }
