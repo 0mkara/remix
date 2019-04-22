@@ -70,7 +70,7 @@ export default class RefType {
    * @param {String} memory - memory
    * @return {Object} decoded value
    */
-  decodeFromMemory(offset: any, memory: String): object {
+  decodeFromMemory(offset: any, memory: string): object {
     offset = memory.substr(2 * offset, 64);
     offset = parseInt(offset, 16);
     return this.decodeFromMemoryInternal(offset, memory);

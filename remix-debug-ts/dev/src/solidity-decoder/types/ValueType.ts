@@ -1,7 +1,11 @@
 'use strict'
-var util = require('./util')
+import util from './util'
 
-class ValueType {
+export default class ValueType {
+  storageSlots: any;
+  storageBytes: any;
+  typeName: any;
+  basicType: string;
   constructor (storageSlots, storageBytes, typeName) {
     this.storageSlots = storageSlots
     this.storageBytes = storageBytes
@@ -16,7 +20,7 @@ class ValueType {
     * @param {Object} storageResolver  - resolve storage queries
     * @return {Object} - decoded value
     */
-  async decodeFromStorage (location, storageResolver) {
+  async decodeFromStorage (location: any, storageResolver: any):Promise<any> {
     try {
       var value = await util.extractHexValue(location, storageResolver, this.storageBytes)
       return {
@@ -40,7 +44,7 @@ class ValueType {
     * @param {String} - memory
     * @return {Object} - decoded value
     */
-  async decodeFromStack (stackDepth, stack, memory) {
+  async decodeFromStack (stackDepth: number, stack: Array<any>, memory: string): any {
     var value
     if (stackDepth >= stack.length) {
       value = this.decodeValue('')
@@ -60,7 +64,7 @@ class ValueType {
     * @return {String} - memory
     * @return {Object} - decoded value
     */
-  decodeFromMemory (offset, memory) {
+  decodeFromMemory (offset: any, memory: any): any {
     var value = memory.substr(2 * offset, 64)
     return {
       value: this.decodeValue(value),
@@ -69,4 +73,3 @@ class ValueType {
   }
 }
 
-module.exports = ValueType
