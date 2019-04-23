@@ -1,19 +1,31 @@
 'use strict'
-var remixLib = require('remix-lib')
-var SourceLocationTracker = remixLib.SourceLocationTracker
-var AstWalker = remixLib.AstWalker
-var EventManager = remixLib.EventManager
-var decodeInfo = require('./decodeInfo')
-var util = remixLib.util
-var traceHelper = remixLib.helpers.trace
-var typesUtil = require('./types/util.js')
+import remixLib from 'remix-lib'
+const SourceLocationTracker = remixLib.SourceLocationTracker
+const AstWalker = remixLib.AstWalker
+const EventManager = remixLib.EventManager
+import decodeInfo from './decodeInfo'
+const util = remixLib.util
+const traceHelper = remixLib.helpers.trace
+import typesUtil from './types/util.js'
 
 /**
  * Tree representing internal jump into function.
  * Triggers `callTreeReady` event when tree is ready
  * Triggers `callTreeBuildFailed` event when tree fails to build
  */
-class InternalCallTree {
+export default class InternalCallTree {
+  includeLocalVariables: any;
+  event: any;
+  solidityProxy: any;
+  traceManager: any;
+  sourceLocationTracker: any;
+  scopes: any;
+  scopeStarts: any;
+  functionCallStack: any[];
+  variableDeclarationByFile: {};
+  functionDefinitionByFile: {};
+  astWalker: any;
+  reducedTrace: any[];
   /**
     * constructor
     *
@@ -53,7 +65,7 @@ class InternalCallTree {
     * reset tree
     *
     */
-  reset () {
+  reset (): void {
     /*
       scopes: map of scopes defined by range in the vmtrace {firstStep, lastStep, locals}. Keys represent the level of deepness (scopeId)
     */
@@ -75,7 +87,7 @@ class InternalCallTree {
     *
     * @param {Int} vmtraceIndex  - index on the vm trace
     */
-  findScope (vmtraceIndex) {
+  findScope (vmtraceIndex: number): any {
     var scopes = Object.keys(this.scopeStarts)
     if (!scopes.length) {
       return null
@@ -91,7 +103,7 @@ class InternalCallTree {
     return scope
   }
 
-  extractSourceLocation (step) {
+  extractSourceLocation (step: number): Promise<any> {
     var self = this
     return new Promise(function (resolve, reject) {
       self.traceManager.getCurrentCalledAddressAt(step, (error, address) => {
@@ -111,7 +123,7 @@ class InternalCallTree {
   }
 }
 
-async function buildTree (tree, step, scopeId, isExternalCall) {
+async function buildTree (tree: any, step: any, scopeId: any, isExternalCall: any): Promise<any> {
   let subScope = 1
   tree.scopeStarts[step] = scopeId
   tree.scopes[scopeId] = { firstStep: step, locals: {} }
@@ -123,7 +135,7 @@ async function buildTree (tree, step, scopeId, isExternalCall) {
     return false
   }
 
-  function includedSource (source, included) {
+  function includedSource (source: any, included: any): any {
     return (included.start !== -1 &&
         included.length !== -1 &&
         included.file !== -1 &&
@@ -132,11 +144,11 @@ async function buildTree (tree, step, scopeId, isExternalCall) {
         included.file === source.file)
   }
 
-  var currentSourceLocation = {start: -1, length: -1, file: -1}
-  var previousSourceLocation = currentSourceLocation
+  let currentSourceLocation = {start: -1, length: -1, file: -1}
+  let previousSourceLocation = currentSourceLocation
   while (step < tree.traceManager.trace.length) {
-    var sourceLocation
-    var newLocation = false
+    let sourceLocation
+    let newLocation = false
     try {
       sourceLocation = await tree.extractSourceLocation(step)
       if (!includedSource(sourceLocation, currentSourceLocation)) {
@@ -150,10 +162,10 @@ async function buildTree (tree, step, scopeId, isExternalCall) {
     if (!sourceLocation) {
       return { outStep: step, error: 'InternalCallTree - No source Location. ' + step }
     }
-    var isCallInstruction = traceHelper.isCallInstruction(tree.traceManager.trace[step])
+    let isCallInstruction = traceHelper.isCallInstruction(tree.traceManager.trace[step])
     if (isCallInstruction || sourceLocation.jump === 'i') {
       try {
-        var externalCallResult = await buildTree(tree, step + 1, scopeId === '' ? subScope.toString() : scopeId + '.' + subScope, isCallInstruction)
+        let externalCallResult = await buildTree(tree, step + 1, scopeId === '' ? subScope.toString() : scopeId + '.' + subScope, isCallInstruction)
         if (externalCallResult.error) {
           return { outStep: step, error: 'InternalCallTree - ' + externalCallResult.error }
         } else {
@@ -177,19 +189,19 @@ async function buildTree (tree, step, scopeId, isExternalCall) {
   return { outStep: step }
 }
 
-function createReducedTrace (tree, index) {
+function createReducedTrace (tree: any, index: any): void {
   tree.reducedTrace.push(index)
 }
 
-function includeVariableDeclaration (tree, step, sourceLocation, scopeId, newLocation, previousSourceLocation) {
-  var variableDeclaration = resolveVariableDeclaration(tree, step, sourceLocation)
+function includeVariableDeclaration (tree: any, step: any, sourceLocation:any, scopeId: any, newLocation: any, previousSourceLocation: any): void {
+  let variableDeclaration = resolveVariableDeclaration(tree, step, sourceLocation)
   if (variableDeclaration && !tree.scopes[scopeId].locals[variableDeclaration.attributes.name]) {
     tree.traceManager.getStackAt(step, (error, stack) => {
       if (!error) {
-        tree.solidityProxy.contractNameAt(step, (error, contractName) => { // cached
+        tree.solidityProxy.contractNameAt(step, (error: Error, contractName: string) => { // cached
           if (!error) {
-            var states = tree.solidityProxy.extractStatesDefinitions()
-            var location = typesUtil.extractLocationFromAstVariable(variableDeclaration)
+            let states = tree.solidityProxy.extractStatesDefinitions()
+            let location = typesUtil.extractLocationFromAstVariable(variableDeclaration)
             location = location === 'default' ? 'storage' : location
             tree.scopes[scopeId].locals[variableDeclaration.attributes.name] = {
               name: variableDeclaration.attributes.name,
@@ -202,7 +214,7 @@ function includeVariableDeclaration (tree, step, sourceLocation, scopeId, newLoc
       }
     })
   }
-  var functionDefinition = resolveFunctionDefinition(tree, step, previousSourceLocation)
+  let functionDefinition = resolveFunctionDefinition(tree, step, previousSourceLocation)
   if (functionDefinition && (newLocation && traceHelper.isJumpDestInstruction(tree.traceManager.trace[step - 1]) || functionDefinition.attributes.isConstructor)) {
     tree.functionCallStack.push(step)
     // means: the previous location was a function definition && JUMPDEST
@@ -223,7 +235,7 @@ function includeVariableDeclaration (tree, step, sourceLocation, scopeId, newLoc
   }
 }
 
-function resolveVariableDeclaration (tree, step, sourceLocation) {
+function resolveVariableDeclaration (tree:any, step:any, sourceLocation:any):any {
   if (!tree.variableDeclarationByFile[sourceLocation.file]) {
     var ast = tree.solidityProxy.ast(sourceLocation)
     if (ast) {
@@ -236,7 +248,7 @@ function resolveVariableDeclaration (tree, step, sourceLocation) {
   return tree.variableDeclarationByFile[sourceLocation.file][sourceLocation.start + ':' + sourceLocation.length + ':' + sourceLocation.file]
 }
 
-function resolveFunctionDefinition (tree, step, sourceLocation) {
+function resolveFunctionDefinition (tree: any, step: any, sourceLocation: any) {
   if (!tree.functionDefinitionByFile[sourceLocation.file]) {
     var ast = tree.solidityProxy.ast(sourceLocation)
     if (ast) {
@@ -249,7 +261,7 @@ function resolveFunctionDefinition (tree, step, sourceLocation) {
   return tree.functionDefinitionByFile[sourceLocation.file][sourceLocation.start + ':' + sourceLocation.length + ':' + sourceLocation.file]
 }
 
-function extractVariableDeclarations (ast, astWalker) {
+function extractVariableDeclarations (ast: any, astWalker: any): any {
   var ret = {}
   astWalker.walk(ast, (node) => {
     if (node.name === 'VariableDeclaration') {
@@ -260,7 +272,7 @@ function extractVariableDeclarations (ast, astWalker) {
   return ret
 }
 
-function extractFunctionDefinitions (ast, astWalker) {
+function extractFunctionDefinitions (ast: any, astWalker: any): any {
   var ret = {}
   astWalker.walk(ast, (node) => {
     if (node.name === 'FunctionDefinition') {
@@ -271,7 +283,7 @@ function extractFunctionDefinitions (ast, astWalker) {
   return ret
 }
 
-function addParams (parameterList, tree, scopeId, states, contractName, sourceLocation, stackLength, stackPosition, dir) {
+function addParams (parameterList: any, tree: any, scopeId: any, states: any, contractName: any, sourceLocation: any, stackLength: any, stackPosition: any, dir: any): any {
   for (var inputParam in parameterList.children) {
     var param = parameterList.children[inputParam]
     var stackDepth = stackLength + (dir * stackPosition)
@@ -289,4 +301,3 @@ function addParams (parameterList, tree, scopeId, states, contractName, sourceLo
   }
 }
 
-module.exports = InternalCallTree
