@@ -20,7 +20,7 @@ export default class StringType extends DynamicBytes {
 
   async decodeFromStack (stackDepth: any, stack: any, memory: any): any {
     try {
-      return await super.decodeFromStack(stackDepth, stack, memory)
+      return await super.decodeFromStack(stackDepth, stack, memory, null) // TODO sending null as 4th @param
     } catch (e) {
       console.log(e)
       return '<decoding failed - ' + e.message + '>'

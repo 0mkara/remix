@@ -41,7 +41,7 @@ async function decodeState(
  * @return {Object} - return the location of all contract variables in the storage
  */
 function extractStateVariables(contractName: string, sourcesList: object) {
-  let states = astHelper.extractStatesDefinitions(sourcesList);
+  let states = astHelper.extractStatesDefinitions(sourcesList, null);     // TODO Passing NULL for NOW
   if (!states[contractName]) {
     return [];
   }
