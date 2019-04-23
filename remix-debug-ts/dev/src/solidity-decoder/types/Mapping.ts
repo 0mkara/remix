@@ -93,7 +93,7 @@ function getMappingLocation(key: any, position: any): any {
   let mappingK = ethutil.toBuffer("0x" + key);
   let mappingP = ethutil.intToBuffer(position);
   mappingP = ethutil.setLengthLeft(mappingP, 32);
-  let mappingKeyBuf = concatTypedArrays(mappingK, mappingP);
+  let mappingKeyBuf: any = concatTypedArrays(mappingK, mappingP);
   let mappingKeyPreimage = "0x" + mappingKeyBuf.toString("hex");
   let mappingStorageLocation = ethutil.sha3(mappingKeyPreimage);
   mappingStorageLocation = new ethutil.BN(mappingStorageLocation, 16);

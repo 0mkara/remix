@@ -8,7 +8,7 @@ export default class StringType extends DynamicBytes {
   }
 
   async decodeFromStorage (location: any, storageResolver: any): Promise<any> {
-    var decoded = '0x'
+    let decoded = '0x'
     try {
       decoded = await super.decodeFromStorage(location, storageResolver)
     } catch (e) {
@@ -18,7 +18,7 @@ export default class StringType extends DynamicBytes {
     return format(decoded)
   }
 
-  async decodeFromStack (stackDepth: any, stack: any, memory: any): any {
+  async decodeFromStack (stackDepth: any, stack: any, memory: any): Promise<any> {
     try {
       return await super.decodeFromStack(stackDepth, stack, memory, null) // TODO sending null as 4th @param
     } catch (e) {
@@ -28,18 +28,18 @@ export default class StringType extends DynamicBytes {
   }
 
   decodeFromMemoryInternal (offset, memory) {
-    var decoded = super.decodeFromMemoryInternal(offset, memory)
+    let decoded = super.decodeFromMemoryInternal(offset, memory)
     return format(decoded)
   }
 }
 
-function format (decoded) {
+function format (decoded: any): any {
   if (decoded.error) {
     return decoded
   }
-  var value = decoded.value
+  let value = decoded.value
   value = value.replace('0x', '').replace(/(..)/g, '%$1')
-  var ret = {
+  let ret: any = {
     length: decoded.length,
     raw: decoded.value,
     type: 'string'

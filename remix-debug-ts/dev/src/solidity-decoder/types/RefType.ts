@@ -1,6 +1,8 @@
 "use strict";
+import { BN } from "ethereumjs-util";
 import util from "./util";
-import DynamicByteArray from "./DynamicByteArray";
+import remixLib from "remix-lib";
+const sha3256 = remixLib.util.sha3_256;
 export default class RefType {
   location: any;
   storageSlots: any;
@@ -40,7 +42,8 @@ export default class RefType {
     if (this.isInStorage()) {
       offset = util.toBN(offset);
       try {
-        return await this.decodeFromStorage(    // ADDING func from dynamicByteArray.ts
+        return await this.decodeFromStorage(
+          // ADDING func from dynamicByteArray.ts
           { offset: 0, slot: offset },
           storageResolver
         );

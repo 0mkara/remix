@@ -316,7 +316,7 @@ function getStructMembers(
         dec.name === "StructDefinition" &&
         type === contractName + "." + dec.attributes.name
       ) {
-        let offsets = computeOffsets(
+        let offsets: any = computeOffsets(
           dec.children,
           stateDefinitions,
           contractName,

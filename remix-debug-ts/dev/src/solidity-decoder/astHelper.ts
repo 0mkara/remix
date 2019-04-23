@@ -97,7 +97,7 @@ function extractStateDefinitions(
  */
 function extractStatesDefinitions(
   sourcesList: object,
-  contracts: object
+  contracts: any
 ): object {
   if (!contracts) {
     contracts = extractContractDefinitions(sourcesList);
